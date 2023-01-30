@@ -23,10 +23,20 @@ class Graph:
         return graph
             
     def add_node(self, node):
+        """Add node to graph
+
+        Args:
+            node (Any): Node to add
+        """
         if node not in self._graph:
             self._graph[node] = {}
             
     def add_nodes(self, nodes: list):
+        """Add nodes to graph
+
+        Args:
+            nodes (list): List of node to add
+        """
         for node in nodes:
             self.add_node(node)
 
