@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 
 
@@ -17,11 +18,11 @@ class Graph:
             Graph: Initialize graph with edges from file
         """
         with open(path, "r") as f:
-            edges = [line.strip().split(",") for line in f.readlines()]
+            edges = filter(None, (line.rstrip().split(",") for line in f.readlines()))
         graph = cls()
         graph.add_edges(edges=edges)
         return graph
-            
+
     def add_node(self, node):
         """Add node to graph
 
@@ -29,8 +30,8 @@ class Graph:
             node (Any): Node to add
         """
         if node not in self._graph:
-            self._graph[node] = {}
-            
+            self._graph[node] = set()
+
     def add_nodes(self, nodes: list):
         """Add nodes to graph
 
@@ -137,7 +138,12 @@ class Graph:
         return edges
 
     def __str__(self):
-        return "{}({})".format(self.__class__.__name__, dict(self._graph))
+        return "{}(\n\t{}\n)".format(
+            self.__class__.__name__,
+            "\n\t".join(
+                f"{k}:({', '.join(map(str, vs))})" for k, vs in self._graph.items()
+            ),
+        )
 
 
 if __name__ == "__main__":
@@ -178,6 +184,6 @@ if __name__ == "__main__":
         ("SAGE", "PALE"),
         ("SALT", "SAGE"),
     ]
-    
+
     graph = Graph.from_txt("test/directed.txt")
     print(graph._graph)
