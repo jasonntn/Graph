@@ -2,10 +2,9 @@ from collections import defaultdict
 
 
 class Graph:
-    def __init__(self, edges: list, directed: bool = True):
+    def __init__(self, directed: bool = True):
         self._graph = defaultdict(set)
         self._directed = directed
-        self.add_edges(edges)
 
     @classmethod
     def from_txt(cls, path: str):
@@ -19,7 +18,17 @@ class Graph:
         """
         with open(path, "r") as f:
             edges = [line.strip().split(",") for line in f.readlines()]
-        return cls(edges)
+        graph = cls()
+        graph.add_edges(edges=edges)
+        return graph
+            
+    def add_node(self, node):
+        if node not in self._graph:
+            self._graph[node] = {}
+            
+    def add_nodes(self, nodes: list):
+        for node in nodes:
+            self.add_node(node)
 
     def add_edges(self, edges: list):
         """Add edges to graph
@@ -27,8 +36,11 @@ class Graph:
         Args:
             edges (list): List of edges
         """
-        for node1, node2 in edges:
-            self.add_edge(node1, node2)
+        for edge in edges:
+            if len(edge) == 1:
+                self.add_node(edge[0])
+            else:
+                self.add_edge(edge[0], edge[1])
 
     def add_edge(self, node1, node2):
         """Add edge to graph
@@ -156,5 +168,6 @@ if __name__ == "__main__":
         ("SAGE", "PALE"),
         ("SALT", "SAGE"),
     ]
-    graph = Graph(edges=word_transform_edges)
-    print(graph.nodes)
+    
+    graph = Graph.from_txt("test/directed.txt")
+    print(graph._graph)
