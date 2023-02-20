@@ -1,121 +1,69 @@
-from collections import defaultdict
+from typing import Dict, Any
+
+class Vertex:
+    def __init__(self, id) -> None:
+        self.id = id
+        self.neighbor = {}
+        
+    def add_neighbor(self, id, weight: int = 0):
+        self.neighbor[id] = weight
+
+    def __str__(self):
+        return str(self.id) + ' <-> ' + str([x.id for x in self.neighbor])
+
+    @property
+    def neighbors(self):
+        return self.neighbor.keys()
 
 
 class Graph:
-    def __init__(self, edges: list, directed: bool = True):
-        self._graph = defaultdict(set)
-        self._directed = directed
-        self.add_edges(edges)
+    def __init__(self) -> None:
+        self.vertex = {}
 
-    @classmethod
-    def from_txt(cls, path: str):
-        """Load graph's edges from .txt file. Nodes separated by ",".
+    def add_vertex(self, id):
+        vertex = Vertex(id)
+        self.vertex[id] = vertex
+        return vertex
 
-        Args:
-            path (str): Path to .txt file
+    def get_vertex(self, id):
+        if id in self.vertex:
+            return self.vertex[id]
 
-        Returns:
-            Graph: Initialize graph with edges from file
-        """
-        with open(path, "r") as f:
-            edges = [line.strip().split(",") for line in f.readlines()]
-        return cls(edges)
+    def __contains__(self, id):
+        return self.vertex[id]
 
-    def add_edges(self, edges: list):
-        """Add edges to graph
-
-        Args:
-            edges (list): List of edges
-        """
-        for node1, node2 in edges:
-            self.add_edge(node1, node2)
-
-    def add_edge(self, node1, node2):
-        """Add edge to graph
-
-        Args:
-            node1 (Any): Node 1
-            node2 (Any): Node 2
-        """
-        self._graph[node1].add(node2)
-        if not self._directed:
-            self._graph[node2].add(node1)
-
-    def remove(self, node):
-        """Remove node and all references to node
-
-        Args:
-            node (Any): Node to remove
-        """
-        for ref_nodes in self._graph.values():
-            try:
-                ref_nodes.remove(node)
-            except KeyError:
-                pass
-        try:
-            del self._graph[node]
-        except KeyError:
-            pass
-
-    def is_connected(self, node1, node2) -> bool:
-        """Check if node1 directly connected to node2
-
-        Args:
-            node1 (Any): Node 1
-            node2 (Any): Node 2
-
-        Returns:
-            bool: Is directly connected?
-        """
-        return node1 in self._graph and node2 in self._graph[node1]
-
-    def find_path(self, node1, node2, path: list = []):
-        """Find path from node1 to node2
-
-        Args:
-            node1 (Any): Node 1
-            node2 (Any): Node 2
-            path (list, optional): additional argument for recursive. Defaults to [].
-
-        Returns:
-            list: List of nodes from node1 to node2. If not found, return None.
-        """
-        path = path + [node1]
-        if node1 == node2:
-            return path
-        if node1 not in self._graph:
-            return None
-        for node in self._graph[node1]:
-            if node not in path:
-                new_path = self.find_path(node, node2, path)
-                if new_path:
-                    return new_path
-        return None
+    def add_edge(self, id0, id1, weight: int = 0):
+        if id0 not in self.vertex:
+            self.add_vertex(id0)
+        if id1 not in self.vertex:
+            self.add_vertex(id1)
+        self.vertex[id0].add_neighbor(id1, weight)
 
     @property
-    def nodes(self):
-        """Graph's nodes
+    def vertices(self):
+        return self.vertex.keys()
 
-        Returns:
-            list: List of nodes sorted ascending
-        """
-        return sorted(self._graph.keys())
+    def __iter__(self):
+        return iter(self.vertex.values())
 
-    @property
-    def edges(self):
-        """Graph's edges
-
-        Returns:
-            list: List of edges
-        """
-        edges = []
-        for root, nodes in self._graph.items():
-            for node in nodes:
-                edges.append((root, node))
-        return edges
-
-    def __str__(self):
-        return "{}({})".format(self.__class__.__name__, dict(self._graph))
+    def bfs(self, s_id):
+        visited = [s_id]
+        queue = [s_id]
+ 
+        while queue:
+            r_id = queue.pop(0)
+            print(r_id)
+            for n_id in self.vertex[r_id].neighbors:
+                if n_id not in visited:
+                    queue.append(n_id)
+                    visited.append(n_id)
+    
+    def dfs(self, s_id, visited: list):
+        if s_id not in visited:
+            print(s_id, " ")
+            visited.append(s_id)
+            for n_id in self.vertex[s_id].neighbors:
+                self.dfs(n_id, visited)
 
 
 if __name__ == "__main__":
@@ -156,5 +104,16 @@ if __name__ == "__main__":
         ("SAGE", "PALE"),
         ("SALT", "SAGE"),
     ]
-    graph = Graph(edges=word_transform_edges)
-    print(graph.nodes)
+    test = [
+        (0, 1),
+        (0, 2),
+        (1, 2),
+        (2, 0),
+        (2, 3),
+        (3, 3)
+    ]
+    graph = Graph()
+    for edge in test:
+        graph.add_edge(*edge)
+    graph.bfs(2)
+    graph.dfs(2, [])
