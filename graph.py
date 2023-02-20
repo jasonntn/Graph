@@ -1,5 +1,3 @@
-from typing import Dict, Any
-
 class Vertex:
     def __init__(self, id) -> None:
         self.id = id
