@@ -58,7 +58,7 @@ class Graph:
     
     def dfs(self, s_id, visited: list):
         if s_id not in visited:
-            print(s_id, " ")
+            print(s_id)
             visited.append(s_id)
             for n_id in self.vertex[s_id].neighbors:
                 self.dfs(n_id, visited)
